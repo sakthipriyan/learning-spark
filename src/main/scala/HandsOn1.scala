@@ -1,9 +1,7 @@
-package hello
-
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
-object SimpleApp {
+object HandsOn1 {
   def main(args: Array[String]) {
 
     val spark = getSpark()

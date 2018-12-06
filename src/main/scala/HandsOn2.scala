@@ -14,27 +14,27 @@ object HandsOn2 {
     val spark = getSpark()
     import spark.implicits._
 
-    val moviesFile = "/home/crayondata.com/sakthipriyan/Downloads/ml-latest-small/movies.csv"
-    val tagsFile = "/home/crayondata.com/sakthipriyan/Downloads/ml-latest-small/tags.csv"
-    val ratingsFile = "/home/crayondata.com/sakthipriyan/Downloads/ml-latest-small/ratings.csv"
-    
-    // Feature Engineering
+    val moviesFile = "../../../Downloads/ml-latest-small/movies.csv"
+    val tagsFile = "../../../Downloads/ml-latest-small/tags.csv"
+    val ratingsFile = "../../../Downloads/ml-latest-small/ratings.csv"
+
     val moviesDF = loadDF(spark, moviesFile)
+    val tagsDF = loadDF(spark, tagsFile)
+    val ratingsDF = loadDF(spark, ratingsFile)
+
     val moviesProcessedDF = moviesDF
       .withColumn("genres", split($"genres", "\\|"))
       .withColumn("genresCount", size($"genres"))
 
-    val tagsDF = loadDF(spark, tagsFile)
     val tagsProcessedDF = tagsDF
       .groupBy("movieId").agg(collect_set("tag").as("tags"))
       .withColumn("tagCount", size($"tags"))
 
-    val ratingsDF = loadDF(spark, ratingsFile)
     val ratingsProcessedDF = ratingsDF
       .groupBy($"movieId")
       .agg(avg("rating").as("ratingAvg"),
         count("rating").as("ratingCount"))
-    
+
     val row = ratingsProcessedDF.agg(avg($"ratingAvg"), avg($"ratingCount")).first
     val avgRating = row.getDouble(0)
     val avgCount = row.getDouble(1)
@@ -131,7 +131,6 @@ object HandsOn2 {
     // val predictionAndLabels = result.select("prediction", "label")
     // val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
     // println(s"Features: ${features.mkString(", ")}. Test set accuracy = ${(100 * evaluator.evaluate(predictionAndLabels)).formatted("%.2f")}%")
-
     spark.stop()
   }
 

@@ -45,17 +45,14 @@ object HandsOn2 {
         .when($"ratingCount" < avgCount && $"ratingAvg" >= avgRating, 2.0)
         .otherwise(3.0).as("label"))
 
-    // moviesLabelDF.show()
     val moviesConsolidatedDF = moviesProcessedDF
       .join(tagsProcessedDF, "movieId")
       .join(moviesLabelDF, "movieId")
-    moviesConsolidatedDF.show(2)
 
     val moviesMergedDF = moviesConsolidatedDF
       .withColumn("genres", arrayToMap($"genres"))
       .withColumn("tags", arrayToMap($"tags"))
 
-    // moviesPrefinalDF.show(2)
     val moviesFeaturedDF = moviesMergedDF.select(
       $"movieId",
       $"title",
@@ -103,34 +100,8 @@ object HandsOn2 {
       $"tags.comedy".as("tComedy")
     ).na.fill(0.0)
 
-    moviesFeaturedDF.show(1)
+    storeDF(moviesFeaturedDF.repartition(1), "../../../Downloads/ml-latest-small/movies-featured.csv")
 
-    // val features
-
-    // Data Transformation
-    // val assembler = new VectorAssembler().setInputCols(features).setOutputCol("features")
-    // val data = assembler.transform(moviesFeaturedDF).select("movieId","features","label")
-    // data.show()
-
-    // Split the data into train and test
-    // val splits = data.randomSplit(Array(0.8, 0.2), seed = 1234L)
-    // val train = splits(0)
-    // val test = splits(1)
-
-    // Setting up Hyper Parameters
-    // val layers = Array[Int](features.length, features.length + 2, features.length + 1, 4)
-
-    // Train the model using train data and test it on the test data.
-    // val trainer
-    // val model
-
-    // Run the model
-    // val result
-
-    // Find the accuracy metrics
-    // val predictionAndLabels = result.select("prediction", "label")
-    // val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
-    // println(s"Features: ${features.mkString(", ")}. Test set accuracy = ${(100 * evaluator.evaluate(predictionAndLabels)).formatted("%.2f")}%")
     spark.stop()
   }
 
@@ -139,6 +110,10 @@ object HandsOn2 {
       .option("header", "true")
       .option("inferSchema", "true")
       .load(path)
+  }
+
+  def storeDF(dataFrame: DataFrame, path: String) = {
+    dataFrame.write.option("header", "true").csv(path)
   }
 
   def getSpark() = {

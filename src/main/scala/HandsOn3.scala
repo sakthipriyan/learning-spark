@@ -32,14 +32,13 @@ object HandsOn3 {
     val moviesFeaturedFile = "../../../Downloads/ml-latest-small/movies-featured.csv"
     val moviesFeaturedDF = loadDF(spark,moviesFeaturedFile)
 
-    // Select features and create train and test dataFrames
-    val features = Array("gCount","tCount", "Drama")
-    val (train,test) = trainAndTest(moviesFeaturedDF, features)
-
     // Select set of features
     val featuresArray = Array("gCount", "tCount", "Drama", "Comedy", "Romance", "Thriller", "Action")
 
     for (features <- getFeatures(featuresArray)) {
+
+      val (train,test) = trainAndTest(moviesFeaturedDF, features)
+
       // Train Model using train data for the selected features.
       val mlpcModel =  trainMLPC(train,features)
 
